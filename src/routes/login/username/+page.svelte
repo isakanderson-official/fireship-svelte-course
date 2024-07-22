@@ -1,6 +1,6 @@
 <script lang="ts">
   import AuthCheck from "$lib/components/AuthCheck.svelte";
-  import { db, user } from "$lib/firebase";
+  import { db, user, userData } from "$lib/firebase";
   import { doc, getDoc, writeBatch} from "firebase/firestore";
 
   let username = "";
@@ -54,7 +54,12 @@
 
 
 <AuthCheck>
-    <h2>Username</h2>
+   {#if $userData?.username}
+   <p>Your username is <span>@{$userData?.username}</span></p>
+   <p>(Usernames cannot be changed)</p>
+   <a href="/login/photo" class="btn btn-primary">Upload Profile Image</a>
+    
+   {:else} 
     <form class="w-2/5" on:submit|preventDefault={confirmUsername}>
         <input
           type="text"
@@ -66,28 +71,26 @@
           class:input-warning={isTaken}
           class:input-success={isAvailable && isValid}
         />
-<div class="my-4 min-h-16 px-8 w-full">
-        {#if loading}
-        <p class="text-secondary">Checking availability of @{username}...</p>
-        {/if}
-{#if !isValid && isTouched}
-  <p class="text-error test-sm">
-    must be 3-6 characters long, alphanumeric only
-  </p>
-{/if}
+      <div class="my-4 min-h-16 px-8 w-full">
+              {#if loading}
+              <p class="text-secondary">Checking availability of @{username}...</p>
+              {/if}
+          {#if !isValid && isTouched}
+            <p class="text-error test-sm">
+                must be 3-6 characters long, alphanumeric only
+            </p>
+          {/if}
 
-{#if isValid && !isAvailable && !loading}
-  <p class="text-warning test-sm">
-    @{username} is already taken
-{/if}
+          {#if isValid && !isAvailable && !loading}
+            <p class="text-warning test-sm">
+              @{username} is already taken
+          {/if}
 
-{#if isAvailable }
-<button class="btn btn-success">Confirm username @{username} </button>
-  
-{/if }
-
-
-  </div>
+          {#if isAvailable }
+          <button class="btn btn-success">Confirm username @{username} </button>
+            
+          {/if }
+        </div>
       </form>
-
+{/if}
 </AuthCheck>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import AnimatedRoute from "$lib/components/AnimatedRoute.svelte";
+  
 </script>
 <!-- Route Id in Svelte is the url minus the website name -->
 <nav class="flex justify-center my-6">
