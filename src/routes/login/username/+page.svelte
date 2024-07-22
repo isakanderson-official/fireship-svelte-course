@@ -10,6 +10,12 @@
   
   let debounceTimer: NodeJS.Timeout;
 
+  const re = /^(?=[a-zA-Z0-9._]{3,16}$)(?!.*[_.]{2})[^_.].*[^_.]$/;
+
+  $: isValid = username?.length > 2 && username.length < 16 && re.test(username);
+  $: isTouched = username.length > 0;
+  $: isTaken = isValid && !isAvailable && !loading;
+
   async function checkAvailability() {
     isAvailable = false;
     clearTimeout(debounceTimer);
@@ -22,7 +28,7 @@
         const ref = doc(db, "usernames", username);
         const exists = await getDoc(ref).then((doc) => doc.exists());
 
-        isAvailable = !exists;
+        isAvailable = !exists && isValid;
         loading = false;
 
     }, 500);
@@ -56,12 +62,32 @@
           class="input w-full"
           bind:value={username}
           on:input={checkAvailability}
+          class:input-error={!isValid && isTouched}
+          class:input-warning={isTaken}
+          class:input-success={isAvailable && isValid}
         />
+<div class="my-4 min-h-16 px-8 w-full">
+        {#if loading}
+        <p class="text-secondary">Checking availability of @{username}...</p>
+        {/if}
+{#if !isValid && isTouched}
+  <p class="text-error test-sm">
+    must be 3-6 characters long, alphanumeric only
+  </p>
+{/if}
 
-        <p>Is available? {isAvailable}</p>
+{#if isValid && !isAvailable && !loading}
+  <p class="text-warning test-sm">
+    @{username} is already taken
+{/if}
 
-        <button class="btn btn-success">Confirm username @{username} </button>
+{#if isAvailable }
+<button class="btn btn-success">Confirm username @{username} </button>
+  
+{/if }
 
+
+  </div>
       </form>
 
 </AuthCheck>
